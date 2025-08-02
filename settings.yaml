@@ -101,7 +101,7 @@ vectorstore:
   database: qdrant
 
 nodestore:
-  database: simple
+  database: postgres
 
 milvus:
   uri: local_data/private_gpt/milvus/milvus_local.db
@@ -112,12 +112,12 @@ qdrant:
   path: local_data/private_gpt/qdrant
 
 postgres:
-  host: localhost
+  host: host.docker.internal
   port: 5432
-  database: postgres
+  database: private_gpt
   user: postgres
-  password: postgres
-  schema_name: private_gpt
+  # password: postgres
+  # schema_name: private_gpt
 
 sagemaker:
   llm_endpoint_name: huggingface-pytorch-tgi-inference-2023-09-25-19-53-32-140

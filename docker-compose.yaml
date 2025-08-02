@@ -13,7 +13,7 @@ services:
       context: .
       dockerfile: Dockerfile.ollama
     volumes:
-      - ./local_data:/home/worker/app/local_data
+      - ${ROOT_DATA_PATH:-./}/local_data:/home/worker/app/local_data
     ports:
       - "8001:8001"
     environment:
@@ -24,7 +24,7 @@ services:
       PGPT_OLLAMA_API_BASE: http://ollama:11434
       HF_TOKEN: ${HF_TOKEN:-}
     profiles:
-      - ""
+      - ''
       - ollama-cpu
       - ollama-cuda
       - ollama-api
@@ -41,8 +41,8 @@ services:
       context: .
       dockerfile: Dockerfile.llamacpp-cpu
     volumes:
-      - ./local_data/:/home/worker/app/local_data
-      - ./models/:/home/worker/app/models
+      - ${ROOT_DATA_PATH:-./}/local_data/:/home/worker/app/local_data
+      - ${ROOT_DATA_PATH:-./}/models/:/home/worker/app/models
     entrypoint: sh -c ".venv/bin/python scripts/setup && .venv/bin/python -m private_gpt"
     ports:
       - "8001:8001"
@@ -82,7 +82,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     profiles:
-      - ""
+      - ''
       - ollama-cpu
       - ollama-cuda
       - ollama-api
@@ -93,9 +93,8 @@ services:
     ports:
       - "11434:11434"
     volumes:
-      - ./models:/root/.ollama
+      - ${ROOT_DATA_PATH:-./}/models:/root/.ollama
     profiles:
-      - ""
       - ollama-cpu
 
   # Ollama service for the CUDA mode
@@ -104,7 +103,7 @@ services:
     ports:
       - "11434:11434"
     volumes:
-      - ./models:/root/.ollama
+      - ${ROOT_DATA_PATH:-./}/models:/root/.ollama
     deploy:
       resources:
         reservations:
@@ -113,4 +112,5 @@ services:
               count: 1
               capabilities: [gpu]
     profiles:
+      - ''
       - ollama-cuda
