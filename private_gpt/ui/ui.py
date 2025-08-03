@@ -10,7 +10,7 @@ from typing import Any
 
 import gradio as gr  # type: ignore
 from fastapi import FastAPI
-from gradio.themes.utils.colors import slate  # type: ignore
+from gradio.themes.utils.colors import stone  # type: ignore
 from injector import inject, singleton
 from llama_index.core.llms import ChatMessage, ChatResponse, MessageRole
 from llama_index.core.types import TokenGen
@@ -25,6 +25,17 @@ from private_gpt.server.ingest.ingest_service import IngestService
 from private_gpt.server.recipes.summarize.summarize_service import SummarizeService
 from private_gpt.settings.settings import settings
 from private_gpt.ui.images import logo_svg
+
+js_func = """
+function refresh() {
+    const url = new URL(window.location);
+
+    if (url.searchParams.get('__theme') !== 'light') {
+        url.searchParams.set('__theme', 'light');
+        window.location.href = url.href;
+    }
+}
+"""
 
 logger = logging.getLogger(__name__)
 
@@ -47,8 +58,8 @@ class Modes(str, Enum):
 MODES: list[Modes] = [
     Modes.RAG_MODE,
     Modes.SEARCH_MODE,
-    Modes.BASIC_CHAT_MODE,
-    Modes.SUMMARIZE_MODE,
+    # Modes.BASIC_CHAT_MODE,
+    # Modes.SUMMARIZE_MODE,
 ]
 
 
@@ -366,18 +377,23 @@ class PrivateGptUi:
     def _build_ui_blocks(self) -> gr.Blocks:
         logger.debug("Creating the UI blocks")
         with gr.Blocks(
+            js=js_func,
             title=UI_TAB_TITLE,
-            theme=gr.themes.Soft(primary_hue=slate),
+            theme=gr.themes.Soft(
+                primary_hue="stone",
+                secondary_hue="stone",
+                neutral_hue="stone",
+            ),
             css=".logo { "
             "display:flex;"
-            "background-color: #C7BAFF;"
+            "background-color: #FFFFFF;"
             "height: 80px;"
             "border-radius: 8px;"
             "align-content: center;"
             "justify-content: center;"
             "align-items: center;"
             "}"
-            ".logo img { height: 25% }"
+            ".logo img { height: 80% }"
             ".contain { display: flex !important; flex-direction: column !important; }"
             "#component-0, #component-3, #component-10, #component-8  { height: 100% !important; }"
             "#chatbot { flex-grow: 1 !important; overflow: auto !important;}"
@@ -390,7 +406,7 @@ class PrivateGptUi:
             ".footer-zylon-ico { height: 20px; margin-left: 5px; background-color: antiquewhite; border-radius: 2px; }",
         ) as blocks:
             with gr.Row():
-                gr.HTML(f"<div class='logo'/><img src={logo_svg} alt=PrivateGPT></div")
+                gr.HTML(f"<div class='logo'/><img src=https://purelyvitalwellness.com/wp-content/uploads/2024/07/Logo.svg alt=PurelyVitalWellness></div>")
 
             with gr.Row(equal_height=False):
                 with gr.Column(scale=3):
@@ -561,12 +577,12 @@ class PrivateGptUi:
                         additional_inputs=[mode, upload_button, system_prompt_input],
                     )
 
-            with gr.Row():
-                avatar_byte = AVATAR_BOT.read_bytes()
-                f_base64 = f"data:image/png;base64,{base64.b64encode(avatar_byte).decode('utf-8')}"
-                gr.HTML(
-                    f"<div class='footer'><a class='footer-zylon-link' href='https://zylon.ai/'>Maintained by Zylon <img class='footer-zylon-ico' src='{f_base64}' alt=Zylon></a></div>"
-                )
+            # with gr.Row():
+            #     avatar_byte = AVATAR_BOT.read_bytes()
+            #     f_base64 = f"data:image/png;base64,{base64.b64encode(avatar_byte).decode('utf-8')}"
+            #     gr.HTML(
+            #         f"<div class='footer'><a class='footer-zylon-link' href='https://zylon.ai/'>Maintained by Zylon <img class='footer-zylon-ico' src='{f_base64}' alt=Zylon></a></div>"
+            #     )
 
         return blocks
 
